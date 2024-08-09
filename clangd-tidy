@@ -272,10 +272,11 @@ if __name__ == "__main__":
         stderr=subprocess.PIPE,
     )
     assert p.stderr is not None
-    read_pipe = ReadPipe(
-        #p.stderr, args.verbose and sys.stderr or open(os.devnull, "w"))
-        # Temporarily push everything to stderr
-        p.stderr, sys.stderr)
+    clangd_stderr = ""
+    if args.verbose:
+      read_pipe = ReadPipe(p.stderr, sys.stderr)
+    else:
+      read_pipe = ReadPipe(p.stderr, clangd_stderr)
     read_pipe.start()
 
     # Kill clangd subprocess on SIGINT
@@ -369,16 +370,16 @@ if __name__ == "__main__":
           sys.stderr.flush()
         collector.cond.release()
 
-    lsp_client.shutdown()
-    lsp_client.exit()
-
     try:
+        lsp_client.shutdown()
+        lsp_client.exit()
         lsp_endpoint.join(60)
         p.wait(60)
         if read_pipe.is_alive():
             read_pipe.join(60)
-    except subprocess.TimeoutExpired:
-        print("Failed to terminate clangd process.", file=sys.stderr)
+    except Exception as e:
+        print(f"Error: {e}", file=sys.stderr)
+        print(clangd_stderr, file=sys.stderr)
 
     if not args.quiet:
         formatter = (
