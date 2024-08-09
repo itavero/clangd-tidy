@@ -255,6 +255,7 @@ if __name__ == "__main__":
         "--pch-storage=memory",
         "--enable-config",
         "--offset-encoding=utf-16",
+        "--log=verbose",
     ]
 
     if args.query_driver:

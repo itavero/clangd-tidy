@@ -86,7 +86,7 @@ class JsonRpcEndpoint(object):
                     # nothing todo with type for now.
                     pass
                 else:
-                    raise lsp_structs.ResponseError(lsp_structs.ErrorCodes.ParseError, "Bad header: unkown header")
+                    raise lsp_structs.ResponseError(lsp_structs.ErrorCodes.ParseError, "Bad header: unknown header")
             if not message_size:
                 raise lsp_structs.ResponseError(lsp_structs.ErrorCodes.ParseError, "Bad header: missing size")
 
