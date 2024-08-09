@@ -273,7 +273,9 @@ if __name__ == "__main__":
     )
     assert p.stderr is not None
     read_pipe = ReadPipe(
-        p.stderr, args.verbose and sys.stderr or open(os.devnull, "w"))
+        #p.stderr, args.verbose and sys.stderr or open(os.devnull, "w"))
+        # Temporarily push everything to stderr
+        p.stderr, sys.stderr)
     read_pipe.start()
 
     # Kill clangd subprocess on SIGINT
@@ -362,8 +364,9 @@ if __name__ == "__main__":
             sys.stderr.flush()
             collector.cond.wait(300)
         # TODO: Remove the following line as it was for debugging why we do not get full analysis on GitLab CI pipeline!?
-        print(f"Got all diagnostics for {len(files)} files.", file=sys.stderr)
-        sys.stderr.flush()
+        if not is_aborted_due_to_timeout:
+          print(f"Got all diagnostics for {len(files)} files.", file=sys.stderr)
+          sys.stderr.flush()
         collector.cond.release()
 
     lsp_client.shutdown()
