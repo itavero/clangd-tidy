@@ -9,6 +9,7 @@ import threading
 import pathlib
 from urllib.parse import urlparse, unquote
 from typing import IO, Set, TextIO
+from io import StringIO
 
 import diagnostic_formatter
 from pylspclient.json_rpc_endpoint import JsonRpcEndpoint
@@ -272,7 +273,7 @@ if __name__ == "__main__":
         stderr=subprocess.PIPE,
     )
     assert p.stderr is not None
-    clangd_stderr = ""
+    clangd_stderr = StringIO("")
     if args.verbose:
       read_pipe = ReadPipe(p.stderr, sys.stderr)
     else:
@@ -379,7 +380,7 @@ if __name__ == "__main__":
             read_pipe.join(60)
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
-        print(clangd_stderr, file=sys.stderr)
+        print(clangd_stderr.getvalue(), file=sys.stderr)
 
     if not args.quiet:
         formatter = (
